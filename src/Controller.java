@@ -1,20 +1,27 @@
 import javafx.scene.shape.Rectangle;
 
 public class Controller {
-    // Getting the numbers and the MESH from Tetris
-    public static final int MOVE = Client.MOVE;
-    public static final int SIZE = Client.SIZE;
-    public static int XMAX = Client.XMAX;
-    public static int YMAX = Client.YMAX;
-    public static int[][] MESH = Client.MESH;
+    // Getting the numbers and the LeftArray from Tetris
+    public static final int MOVE = GroundController.MOVE;
+    public static final int SIZE = GroundController.SIZE;
+    public static int XMAX = GroundController.XMAX;
+    public static int YMAX = GroundController.YMAX;
+    public static int[][] LeftArray = GroundController.LeftArray;
+    public static int[][] rightArray = GroundController.rightArray;
 
-    public static void MoveRight(Form form) {
+    public static void MoveRight(Form form, String who) {
         if (form.a.getX() + MOVE <= XMAX - SIZE && form.b.getX() + MOVE <= XMAX - SIZE
                 && form.c.getX() + MOVE <= XMAX - SIZE && form.d.getX() + MOVE <= XMAX - SIZE) {
-            int movea = MESH[((int) form.a.getX() / SIZE) + 1][((int) form.a.getY() / SIZE)];
-            int moveb = MESH[((int) form.b.getX() / SIZE) + 1][((int) form.b.getY() / SIZE)];
-            int movec = MESH[((int) form.c.getX() / SIZE) + 1][((int) form.c.getY() / SIZE)];
-            int moved = MESH[((int) form.d.getX() / SIZE) + 1][((int) form.d.getY() / SIZE)];
+            int[][] temp = {};//might error
+            if (who.equals("left"))
+                temp = LeftArray;
+            else if (who.equals("right"))
+                temp = rightArray;
+
+            int movea = temp[((int) form.a.getX() / SIZE) + 1][((int) form.a.getY() / SIZE)];
+            int moveb = temp[((int) form.b.getX() / SIZE) + 1][((int) form.b.getY() / SIZE)];
+            int movec = temp[((int) form.c.getX() / SIZE) + 1][((int) form.c.getY() / SIZE)];
+            int moved = temp[((int) form.d.getX() / SIZE) + 1][((int) form.d.getY() / SIZE)];
             if (movea == 0 && movea == moveb && moveb == movec && movec == moved) {
                 form.a.setX(form.a.getX() + MOVE);
                 form.b.setX(form.b.getX() + MOVE);
@@ -24,13 +31,19 @@ public class Controller {
         }
     }
 
-    public static void MoveLeft(Form form) {
+    public static void MoveLeft(Form form, String who) {
         if (form.a.getX() - MOVE >= 0 && form.b.getX() - MOVE >= 0 && form.c.getX() - MOVE >= 0
                 && form.d.getX() - MOVE >= 0) {
-            int movea = MESH[((int) form.a.getX() / SIZE) - 1][((int) form.a.getY() / SIZE)];
-            int moveb = MESH[((int) form.b.getX() / SIZE) - 1][((int) form.b.getY() / SIZE)];
-            int movec = MESH[((int) form.c.getX() / SIZE) - 1][((int) form.c.getY() / SIZE)];
-            int moved = MESH[((int) form.d.getX() / SIZE) - 1][((int) form.d.getY() / SIZE)];
+            int[][] temp = {};
+            if (who.equals("left"))
+                temp = LeftArray;
+            else if (who.equals("right"))
+                temp = rightArray;
+                
+            int movea = temp[((int) form.a.getX() / SIZE) - 1][((int) form.a.getY() / SIZE)];
+            int moveb = temp[((int) form.b.getX() / SIZE) - 1][((int) form.b.getY() / SIZE)];
+            int movec = temp[((int) form.c.getX() / SIZE) - 1][((int) form.c.getY() / SIZE)];
+            int moved = temp[((int) form.d.getX() / SIZE) - 1][((int) form.d.getY() / SIZE)];
             if (movea == 0 && movea == moveb && moveb == movec && movec == moved) {
                 form.a.setX(form.a.getX() - MOVE);
                 form.b.setX(form.b.getX() - MOVE);

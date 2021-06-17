@@ -1,40 +1,23 @@
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.property.StringProperty;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class GroundController extends Client {
 
     @FXML
     private Label myID;
-    
+
     @FXML
     private Label myHit;
 
@@ -55,132 +38,184 @@ public class GroundController extends Client {
 
     @FXML
     private static Label enemyScore;
+
+    public static final int MOVE = 25;
+    public static final int SIZE = 25;
+    public static int XMAX = SIZE * 10;
+    public static int YMAX = SIZE * 22;
+
+    public static int[][] LeftArray = new int[XMAX / SIZE][YMAX / SIZE];
+    public static int[][] rightArray = new int[XMAX / SIZE][YMAX / SIZE];
+
+    public static Form leftObject;
+    public static int leftScoreNum = 0;
+    public static int leftTop = 0;
+    public static boolean leftGame = true;
+    public static Form leftNextObj = Controller.makeRect();
+    public static int leftLinesNum = 0;
+
+    public static Form rightObject;
+    public static int rightScoreNum = 0;
+    public static int rightTop = 0;
+    public static boolean rightGame = true;
+    public static Form rightNextObj = Controller.makeRect();
+    public static int rightLinesNum = 0;
+
     static void initialize() throws Exception {
-        //myID.setText(myName);
-        //myHit.setText("0");
-        //myLine.setText("0");
-        //myScore.setText("0");
-        for (int[] a : MESH) {
+
+        for (int[] a : LeftArray) {
+            Arrays.fill(a, 0);
+        }
+        for (int[] a : rightArray) {
             Arrays.fill(a, 0);
         }
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Runnable updater = new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            System.out.println("boundsInScene.getMinX()");
-                            Bounds boundsInScene = enemyScore.localToScene(enemyScore.getBoundsInLocal());
-                            System.out.println(boundsInScene.getMinX());
-                            System.out.println("boundsInScene.getMinX()");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                try {
-                    Platform.runLater(updater);
-                } catch (Exception e) {
-                }
-            }
+        // left player data
+        Label myNameText = new Label(myName);
+        myNameText.setStyle("-fx-font: 20 Arial;");
+        myNameText.setLayoutX(285);
+        myNameText.setLayoutY(220);
+        Label leftLine = new Label("");
+        leftLine.setStyle("-fx-font: 20 Arial;");
+        leftLine.setLayoutX(285);
+        leftLine.setLayoutY(425);
+        Label leftScore = new Label("");
+        leftScore.setStyle("-fx-font: 20 Arial;");
+        leftScore.setLayoutX(285);
+        leftScore.setLayoutY(525);
+        leftGround.getChildren().addAll(myNameText, leftLine, leftScore);
 
-        });
-        thread.setDaemon(true);
-        thread.start();
-        //System.out.println(boundsInScene.getMinX());
-        //System.out.println(boundsInScene.getMaxX());
-        //System.out.println(boundsInScene.getMinY());
-        //System.out.println(boundsInScene.getMaxY());
-        //System.out.println(boundsInScene.getWidth());
-        //System.out.println(boundsInScene.getHeight()); 
-        //System.out.print(myScore.boundsInLocalProperty())
-        
-        Line line = new Line(XMAX, 0, XMAX, YMAX);
-        Text scoretext = new
-        Text("Score: ");
-        scoretext.setStyle("-fx-font: 20 arial;");
-        scoretext.setY(50); scoretext.setX(XMAX + 5);
-        Text level = new
-        Text("Lines: ");
-        level.setStyle("-fx-font: 20 arial;");
-        level.setY(100);
-        level.setX(XMAX + 5);
-        level.setFill(Color.GREEN);
-        group.getChildren().addAll(scoretext, line, level);
-        
-        
-        Form a = nextObj;
-        group.getChildren().addAll(a.a, a.b, a.c, a.d);
-        moveOnKeyPress(a);
-        object = a;
-        nextObj = Controller.makeRect();
+        // right player data
+        Label enemyNameText = new Label(enemyName);
+        enemyNameText.setStyle("-fx-font: 20 Arial;");
+        enemyNameText.setLayoutX(285);
+        enemyNameText.setLayoutY(220);
+        Label rightLine = new Label("");
+        rightLine.setStyle("-fx-font: 20 Arial;");
+        rightLine.setLayoutX(285);
+        rightLine.setLayoutY(425);
+        Label rightScore = new Label("");
+        rightScore.setStyle("-fx-font: 20 Arial;");
+        rightScore.setLayoutX(285);
+        rightScore.setLayoutY(525);
+        rightGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
+
+        Form left = leftNextObj;
+        leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
+        moveOnKeyPress(left, "left");
+        leftObject = left;
+        leftNextObj = Controller.makeRect();
+
+        Form right = rightNextObj;
+        leftGround.getChildren().addAll(right.a, right.b, right.c, right.d);
+        moveOnKeyPress(right, "right");
+        rightObject = right;
+        rightNextObj = Controller.makeRect();
+
         stage.setScene(scene2);
         stage.show();
-        System.out.println("x");
 
-        Timer fall = new Timer();
-        TimerTask task = new TimerTask() {
+        Timer leftFall = new Timer();
+        TimerTask leftTask = new TimerTask() {
             public void run() {
                 Platform.runLater(new Runnable() {
                     public void run() {
-                        if (object.a.getY() == 0 || object.b.getY() == 0 || object.c.getY() == 0
-                                || object.d.getY() == 0)
-                            top++;
+                        if (leftObject.a.getY() == 0 || leftObject.b.getY() == 0 || leftObject.c.getY() == 0
+                                || leftObject.d.getY() == 0)
+                            leftTop++;
                         else
-                            top = 0;
+                            leftTop = 0;
 
-                        if (top == 2) {
+                        if (leftTop == 2) {
                             // GAME OVER
                             Text over = new Text("GAME OVER");
                             over.setFill(Color.RED);
                             over.setStyle("-fx-font: 70 arial;");
                             over.setY(250);
                             over.setX(10);
-                            group.getChildren().add(over);
-                            game = false;
+                            leftGround.getChildren().add(over);
+                            leftGame = false;
                         }
-                        // Exit
-                        if (top == 15) {
+
+                        if (leftTop == 15) {
+                            // Exit
                             System.exit(0);
                         }
 
-                        if (game) {
-                            MoveDown(object);
-                            scoretext.setText("Score: " + Integer.toString(score));
-							level.setText("Lines: " + Integer.toString(linesNo));
+                        if (leftGame) {
+                            MoveDown(leftObject, "left");
+                            leftLine.setText(Integer.toString(leftLinesNum));
+                            leftScore.setText(Integer.toString(leftScoreNum));
                         }
                     }
                 });
             }
         };
-        fall.schedule(task, 0, 1000);
+        leftFall.schedule(leftTask, 0, 500);
+
+        Timer rightFall = new Timer();
+        TimerTask rightTask = new TimerTask() {
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        if (rightObject.a.getY() == 0 || rightObject.b.getY() == 0 || rightObject.c.getY() == 0
+                                || rightObject.d.getY() == 0)
+                            rightTop++;
+                        else
+                            rightTop = 0;
+
+                        if (rightTop == 2) {
+                            // GAME OVER
+                            Text over = new Text("GAME OVER");
+                            over.setFill(Color.RED);
+                            over.setStyle("-fx-font: 70 arial;");
+                            over.setY(250);
+                            over.setX(10);
+                            leftGround.getChildren().add(over);
+                            rightGame = false;
+                        }
+                        // Exit
+                        if (rightTop == 15) {
+                            System.exit(0);
+                        }
+
+                        if (rightGame) {
+                            MoveDown(rightObject, "right");
+                            rightLine.setText(Integer.toString(rightLinesNum));
+                            rightScore.setText(Integer.toString(rightScoreNum));
+                        }
+                    }
+                });
+            }
+        };
+        rightFall.schedule(rightTask, 0, 500);
     }
-    private static void moveOnKeyPress(Form form) {
+
+    // need to make another method for right
+    private static void moveOnKeyPress(Form form, String who) {
         scene2.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 switch (event.getCode()) {
                     case RIGHT:
-                        Controller.MoveRight(form);
+                        Controller.MoveRight(form, who);
                         break;
                     case DOWN:
-                        MoveDown(form);
-                        score++;
+                        MoveDown(form, who);
+                        leftScoreNum++;
                         break;
                     case LEFT:
-                        Controller.MoveLeft(form);
+                        Controller.MoveLeft(form, who);
                         break;
                     case UP:
-                        MoveTurn(form);
+                        MoveTurn(form, who);
                         break;
                 }
             }
         });
     }
 
-    private static void MoveTurn(Form form) {
+    private static void MoveTurn(Form form, String who) {
         int f = form.form;
         Rectangle a = form.a;
         Rectangle b = form.b;
@@ -468,34 +503,46 @@ public class GroundController extends Client {
         }
     }
 
-    private static void RemoveRows(Pane pane) {
+    private static void RemoveRows(Pane pane, String who) {
         ArrayList<Node> rects = new ArrayList<Node>();
         ArrayList<Integer> lines = new ArrayList<Integer>();
         ArrayList<Node> newrects = new ArrayList<Node>();
         int full = 0;
-        for (int i = 0; i < MESH[0].length; i++) {
-            for (int j = 0; j < MESH.length; j++) {
-                if (MESH[j][i] == 1)
+        int[][] temp = {};
+        if (who.equals("left"))
+            temp = LeftArray;
+        else if (who.equals("right"))
+            temp = rightArray;
+
+        for (int i = 0; i < temp[0].length; i++) {
+            for (int j = 0; j < temp.length; j++) {
+                if (temp[j][i] == 1)
                     full++;
             }
-            if (full == MESH.length)
+            if (full == temp.length)
                 lines.add(i);
-            // lines.add(i + lines.size());
             full = 0;
         }
+
         if (lines.size() > 0)
             do {
                 for (Node node : pane.getChildren()) {
                     if (node instanceof Rectangle)
                         rects.add(node);
                 }
-                score += 50;
-                linesNo++;
+
+                if (who.equals("left")) {
+                    leftScoreNum += 50;
+                    leftLinesNum++;
+                } else if (who.equals("right")) {
+                    rightScoreNum += 50;
+                    rightLinesNum++;
+                }
 
                 for (Node node : rects) {
                     Rectangle a = (Rectangle) node;
                     if (a.getY() == lines.get(0) * SIZE) {
-                        MESH[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 0;
+                        temp[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 0;
                         pane.getChildren().remove(node);
                     } else
                         newrects.add(node);
@@ -504,7 +551,7 @@ public class GroundController extends Client {
                 for (Node node : newrects) {
                     Rectangle a = (Rectangle) node;
                     if (a.getY() < lines.get(0) * SIZE) {
-                        MESH[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 0;
+                        temp[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 0;
                         a.setY(a.getY() + SIZE);
                     }
                 }
@@ -518,7 +565,7 @@ public class GroundController extends Client {
                 for (Node node : rects) {
                     Rectangle a = (Rectangle) node;
                     try {
-                        MESH[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 1;
+                        temp[(int) a.getX() / SIZE][(int) a.getY() / SIZE] = 1;
                     } catch (ArrayIndexOutOfBoundsException e) {
                     }
                 }
@@ -547,28 +594,42 @@ public class GroundController extends Client {
             rect.setY(rect.getY() - MOVE);
     }
 
-    private static void MoveDown(Form form) {
-        if (form.a.getY() == YMAX - SIZE || form.b.getY() == YMAX - SIZE || form.c.getY() == YMAX - SIZE
-                || form.d.getY() == YMAX - SIZE || moveA(form) || moveB(form) || moveC(form) || moveD(form)) {
-            MESH[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
-            MESH[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
-            MESH[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
-            MESH[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
-            RemoveRows(group);
+    private static void MoveDown(Form form, String who) {
+        int[][] temp = {};
+        if (who.equals("left"))
+            temp = LeftArray;
+        else if (who.equals("right"))
+            temp = rightArray;
 
-            Form a = nextObj;
-            nextObj = Controller.makeRect();
-            object = a;
-            group.getChildren().addAll(a.a, a.b, a.c, a.d);
-            moveOnKeyPress(a);
+        if (form.a.getY() == YMAX - SIZE || form.b.getY() == YMAX - SIZE || form.c.getY() == YMAX - SIZE
+                || form.d.getY() == YMAX - SIZE || moveA(form, who) || moveB(form, who) || moveC(form, who) || moveD(form, who)) {
+            temp[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
+            temp[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
+            temp[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
+            temp[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
+            RemoveRows(leftGround, who);
+
+            if (who.equals("left")) {
+                Form left = leftNextObj;
+                leftNextObj = Controller.makeRect();
+                leftObject = left;
+                leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
+                moveOnKeyPress(left, "left");
+            } else if (who.equals("right")) {
+                Form right = rightNextObj;
+                rightNextObj = Controller.makeRect();
+                rightObject = right;
+                leftGround.getChildren().addAll(right.a, right.b, right.c, right.d);
+                moveOnKeyPress(right, "right");
+            }
         }
 
         if (form.a.getY() + MOVE < YMAX && form.b.getY() + MOVE < YMAX && form.c.getY() + MOVE < YMAX
                 && form.d.getY() + MOVE < YMAX) {
-            int movea = MESH[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1];
-            int moveb = MESH[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1];
-            int movec = MESH[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1];
-            int moved = MESH[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1];
+            int movea = temp[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1];
+            int moveb = temp[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1];
+            int movec = temp[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1];
+            int moved = temp[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1];
             if (movea == 0 && movea == moveb && moveb == movec && movec == moved) {
                 form.a.setY(form.a.getY() + MOVE);
                 form.b.setY(form.b.getY() + MOVE);
@@ -578,20 +639,32 @@ public class GroundController extends Client {
         }
     }
 
-    private static boolean moveA(Form form) {
-        return (MESH[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
+    private static boolean moveA(Form form, String who) {
+        if(who.equals("left"))
+            return (LeftArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
+        else
+            return (rightArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveB(Form form) {
-        return (MESH[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
+    private static boolean moveB(Form form, String who) {
+        if(who.equals("left"))
+            return (LeftArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
+        else
+            return (rightArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveC(Form form) {
-        return (MESH[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
+    private static boolean moveC(Form form, String who) {
+        if(who.equals("left"))
+            return (LeftArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
+        else
+            return (rightArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveD(Form form) {
-        return (MESH[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
+    private static boolean moveD(Form form, String who) {
+        if(who.equals("left"))
+            return (LeftArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
+        else
+            return (rightArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean cB(Rectangle rect, int x, int y) {
@@ -605,6 +678,6 @@ public class GroundController extends Client {
             yb = rect.getY() - y * MOVE > 0;
         if (y < 0)
             yb = rect.getY() + y * MOVE < YMAX;
-        return xb && yb && MESH[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
+        return xb && yb && LeftArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
     }
 }

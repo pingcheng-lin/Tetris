@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -58,18 +56,16 @@ public class LoginController extends Client {
                         }
                     };
                     try {
-                        output.writeUTF(myName);
-                        enemyName = input.readUTF();
+                        // output.writeUTF(myName);
+                        // enemyName = input.readUTF();
 
-                        System.out.println("123");
                         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-                        group2 = FXMLLoader.load(getClass().getResource("GroundView.fxml"));
-                        root.getChildren().addAll(group, group2);
+                        middleGround = FXMLLoader.load(getClass().getResource("GroundView.fxml"));
+                        root.getChildren().addAll(middleGround, leftGround, rightGround);
                         Platform.runLater(updater);
                     } catch (Exception e) {
                     }
                 }
-
             });
             thread.setDaemon(true);
             thread.start();
