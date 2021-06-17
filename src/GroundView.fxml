@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="666.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GroundController">
+   <children>
+      <VBox layoutX="250.0" layoutY="150.0" prefHeight="400.0" prefWidth="80.0">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #ff8080;" text="ID" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="myID" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #ffbf80;" text="Hit" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="myHit" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #ffff80;" text="Line" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="myLine" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #d5ff80;" text="Score" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="myScore" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+         </children>
+      </VBox>
+      <VBox layoutX="336.0" layoutY="150.0" prefHeight="400.0" prefWidth="80.0">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="51.0" prefWidth="80.0" style="-fx-background-color: #ff8080;" text="ID" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="enemyID" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #ffbf80;" text="Hit" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="enemyHit" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #ffff80;" text="Line" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="enemyLine" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #d5ff80;" text="Score" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial Bold" size="17.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Label fx:id="enemyScore" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" style="-fx-background-color: #e0e0eb;" textAlignment="CENTER">
+               <effect>
+                  <InnerShadow height="10.0" radius="4.5" width="10.0" />
+               </effect>
+            </Label>
+         </children>
+      </VBox>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="400.0" layoutX="330.0" layoutY="150.0" opacity="0.17" stroke="BLACK" strokeType="INSIDE" width="6.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#33679a" height="150.0" layoutX="250.0" opacity="0.12" stroke="BLACK" strokeType="INSIDE" width="166.0" />
+   </children>
+</AnchorPane>
