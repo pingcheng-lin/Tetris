@@ -44,7 +44,7 @@ public class GroundController extends Client {
     public static int XMAX = SIZE * 10;
     public static int YMAX = SIZE * 22;
 
-    public static int[][] LeftArray = new int[XMAX / SIZE][YMAX / SIZE];
+    public static int[][] leftArray = new int[XMAX / SIZE][YMAX / SIZE];
     public static int[][] rightArray = new int[XMAX / SIZE][YMAX / SIZE];
 
     public static Form leftObject;
@@ -63,7 +63,7 @@ public class GroundController extends Client {
 
     static void initialize() throws Exception {
 
-        for (int[] a : LeftArray) {
+        for (int[] a : leftArray) {
             Arrays.fill(a, 0);
         }
         for (int[] a : rightArray) {
@@ -73,32 +73,32 @@ public class GroundController extends Client {
         // left player data
         Label myNameText = new Label(myName);
         myNameText.setStyle("-fx-font: 20 Arial;");
-        myNameText.setLayoutX(285);
+        myNameText.setLayoutX(25);
         myNameText.setLayoutY(220);
         Label leftLine = new Label("");
         leftLine.setStyle("-fx-font: 20 Arial;");
-        leftLine.setLayoutX(285);
+        leftLine.setLayoutX(25);
         leftLine.setLayoutY(425);
         Label leftScore = new Label("");
         leftScore.setStyle("-fx-font: 20 Arial;");
-        leftScore.setLayoutX(285);
+        leftScore.setLayoutX(25);
         leftScore.setLayoutY(525);
-        leftGround.getChildren().addAll(myNameText, leftLine, leftScore);
+        middleGround.getChildren().addAll(myNameText, leftLine, leftScore);
 
         // right player data
         Label enemyNameText = new Label(enemyName);
         enemyNameText.setStyle("-fx-font: 20 Arial;");
-        enemyNameText.setLayoutX(285);
+        enemyNameText.setLayoutX(100);
         enemyNameText.setLayoutY(220);
         Label rightLine = new Label("");
         rightLine.setStyle("-fx-font: 20 Arial;");
-        rightLine.setLayoutX(285);
+        rightLine.setLayoutX(100);
         rightLine.setLayoutY(425);
         Label rightScore = new Label("");
         rightScore.setStyle("-fx-font: 20 Arial;");
-        rightScore.setLayoutX(285);
+        rightScore.setLayoutX(100);
         rightScore.setLayoutY(525);
-        rightGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
+        middleGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
 
         Form left = leftNextObj;
         leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
@@ -107,7 +107,7 @@ public class GroundController extends Client {
         leftNextObj = Controller.makeRect();
 
         Form right = rightNextObj;
-        leftGround.getChildren().addAll(right.a, right.b, right.c, right.d);
+        rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
         moveOnKeyPress(right, "right");
         rightObject = right;
         rightNextObj = Controller.makeRect();
@@ -171,7 +171,7 @@ public class GroundController extends Client {
                             over.setStyle("-fx-font: 70 arial;");
                             over.setY(250);
                             over.setX(10);
-                            leftGround.getChildren().add(over);
+                            rightGround.getChildren().add(over);
                             rightGame = false;
                         }
                         // Exit
@@ -201,8 +201,12 @@ public class GroundController extends Client {
                         Controller.MoveRight(form, who);
                         break;
                     case DOWN:
+                        // score increase
                         MoveDown(form, who);
-                        leftScoreNum++;
+                        if(who.equals("left"))
+                            leftScoreNum++;
+                        else if(who.equals("right"))
+                            rightScoreNum++;
                         break;
                     case LEFT:
                         Controller.MoveLeft(form, who);
@@ -510,7 +514,7 @@ public class GroundController extends Client {
         int full = 0;
         int[][] temp = {};
         if (who.equals("left"))
-            temp = LeftArray;
+            temp = leftArray;
         else if (who.equals("right"))
             temp = rightArray;
 
@@ -596,8 +600,9 @@ public class GroundController extends Client {
 
     private static void MoveDown(Form form, String who) {
         int[][] temp = {};
+
         if (who.equals("left"))
-            temp = LeftArray;
+            temp = leftArray;
         else if (who.equals("right"))
             temp = rightArray;
 
@@ -607,19 +612,20 @@ public class GroundController extends Client {
             temp[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
             temp[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
             temp[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
-            RemoveRows(leftGround, who);
 
             if (who.equals("left")) {
+                RemoveRows(leftGround, who);
                 Form left = leftNextObj;
                 leftNextObj = Controller.makeRect();
                 leftObject = left;
                 leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
                 moveOnKeyPress(left, "left");
             } else if (who.equals("right")) {
+                RemoveRows(rightGround, who);
                 Form right = rightNextObj;
                 rightNextObj = Controller.makeRect();
                 rightObject = right;
-                leftGround.getChildren().addAll(right.a, right.b, right.c, right.d);
+                rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
                 moveOnKeyPress(right, "right");
             }
         }
@@ -641,28 +647,28 @@ public class GroundController extends Client {
 
     private static boolean moveA(Form form, String who) {
         if(who.equals("left"))
-            return (LeftArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
+            return (leftArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveB(Form form, String who) {
         if(who.equals("left"))
-            return (LeftArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
+            return (leftArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveC(Form form, String who) {
         if(who.equals("left"))
-            return (LeftArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
+            return (leftArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveD(Form form, String who) {
         if(who.equals("left"))
-            return (LeftArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
+            return (leftArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
     }
@@ -678,6 +684,6 @@ public class GroundController extends Client {
             yb = rect.getY() - y * MOVE > 0;
         if (y < 0)
             yb = rect.getY() + y * MOVE < YMAX;
-        return xb && yb && LeftArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
+        return xb && yb && leftArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
     }
 }

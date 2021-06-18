@@ -8,6 +8,9 @@ import java.net.*;
 import java.io.*;
 import java.io.IOException;
 
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
@@ -20,7 +23,7 @@ public class Client extends Application {
     public static Pane middleGround = new Pane();
     public static Pane leftGround = new Pane();
     public static Pane rightGround = new Pane();
-    public static Pane root = new StackPane();
+    public static GridPane root = new GridPane();
     public static Scene scene2 = new Scene(root, 666, 550);
     public static String enemyName = new String();
     public static String myName = new String();

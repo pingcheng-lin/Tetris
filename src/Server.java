@@ -90,7 +90,7 @@ class slaveForClientConnection implements Runnable {
     public void run() {
         try {
             System.out.println("Wait player name...");
-            String myName = input.readUTF();
+            String myName = input.readUTF();//read name
             System.out.println("Player name: " + myName + " login.");
 
             if (!Server.playersName.contains(myName)) {
