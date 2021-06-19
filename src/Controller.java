@@ -51,7 +51,7 @@ public class Controller {
             }
         }
     }
-
+    //proto 
     public static Form makeRect() {
         int block = (int) (Math.random() * 100);
         String name;
@@ -99,6 +99,72 @@ public class Controller {
             d.setX(XMAX / 2 + SIZE);
             name = "t";
         } else if (block < 90) {
+            a.setX(XMAX / 2 + SIZE);
+            b.setX(XMAX / 2);
+            c.setX(XMAX / 2 + SIZE);
+            c.setY(SIZE);
+            d.setX(XMAX / 2 + SIZE + SIZE);
+            d.setY(SIZE);
+            name = "z";
+        } else {
+            a.setX(XMAX / 2 - SIZE - SIZE);
+            b.setX(XMAX / 2 - SIZE);
+            c.setX(XMAX / 2);
+            d.setX(XMAX / 2 + SIZE);
+            name = "i";
+        }
+        return new Form(a, b, c, d, name);
+    }
+
+
+    public static Form makeRect(int seed) {
+        // 7 kinds of pattern of rectangle
+        System.out.println(seed);
+        String name;
+        Rectangle a = new Rectangle(SIZE - 1, SIZE - 1), b = new Rectangle(SIZE - 1, SIZE - 1),
+                c = new Rectangle(SIZE - 1, SIZE - 1), d = new Rectangle(SIZE - 1, SIZE - 1);
+        if (seed == 1) {
+            a.setX(XMAX / 2 - SIZE);
+            b.setX(XMAX / 2 - SIZE);
+            b.setY(SIZE);
+            c.setX(XMAX / 2);
+            c.setY(SIZE);
+            d.setX(XMAX / 2 + SIZE);
+            d.setY(SIZE);
+            name = "j";
+        } else if (seed == 2) {
+            a.setX(XMAX / 2 + SIZE);
+            b.setX(XMAX / 2 - SIZE);
+            b.setY(SIZE);
+            c.setX(XMAX / 2);
+            c.setY(SIZE);
+            d.setX(XMAX / 2 + SIZE);
+            d.setY(SIZE);
+            name = "l";
+        } else if (seed == 3) {
+            a.setX(XMAX / 2 - SIZE);
+            b.setX(XMAX / 2);
+            c.setX(XMAX / 2 - SIZE);
+            c.setY(SIZE);
+            d.setX(XMAX / 2);
+            d.setY(SIZE);
+            name = "o";
+        } else if (seed == 4) {
+            a.setX(XMAX / 2 + SIZE);
+            b.setX(XMAX / 2);
+            c.setX(XMAX / 2);
+            c.setY(SIZE);
+            d.setX(XMAX / 2 - SIZE);
+            d.setY(SIZE);
+            name = "s";
+        } else if (seed == 5) {
+            a.setX(XMAX / 2 - SIZE);
+            b.setX(XMAX / 2);
+            c.setX(XMAX / 2);
+            c.setY(SIZE);
+            d.setX(XMAX / 2 + SIZE);
+            name = "t";
+        } else if (seed == 6) {
             a.setX(XMAX / 2 + SIZE);
             b.setX(XMAX / 2);
             c.setX(XMAX / 2 + SIZE);

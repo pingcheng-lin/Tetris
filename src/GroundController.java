@@ -12,6 +12,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import java.net.*;
+import java.io.*;
 
 public class GroundController extends Client {
 
@@ -51,15 +53,17 @@ public class GroundController extends Client {
     public static int leftScoreNum = 0;
     public static int leftTop = 0;
     public static boolean leftGame = true;
-    public static Form leftNextObj = Controller.makeRect();
+    public static Form leftNextObj;
     public static int leftLinesNum = 0;
 
     public static Form rightObject;
     public static int rightScoreNum = 0;
     public static int rightTop = 0;
     public static boolean rightGame = true;
-    public static Form rightNextObj = Controller.makeRect();
+    public static Form rightNextObj;
     public static int rightLinesNum = 0;
+
+    public static Form startRect = new Form();
 
     static void initialize() throws Exception {
 
@@ -100,17 +104,24 @@ public class GroundController extends Client {
         rightScore.setLayoutY(525);
         middleGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
 
-        Form left = leftNextObj;
+        startRect = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber)-'0');
+
+        myPatternNumber++;
+        enPatternNumber++;
+
+        //init first rect from where server sent
+        Form left = startRect;
         leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
         moveOnKeyPress(left, "left");
         leftObject = left;
-        leftNextObj = Controller.makeRect();
+        leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++)-'0');
 
-        Form right = rightNextObj;
+        //init first rect from where server sent
+        Form right = startRect;
         rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
-        moveOnKeyPress(right, "right");
+        enermyBehavior(right, "right");
         rightObject = right;
-        rightNextObj = Controller.makeRect();
+        rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++)-'0');
 
         stage.setScene(scene2);
         stage.show();
@@ -199,6 +210,11 @@ public class GroundController extends Client {
                 switch (event.getCode()) {
                     case RIGHT:
                         Controller.MoveRight(form, who);
+                        try{
+                            Client.output.write(10);
+                            Client.output.flush();
+                        }catch(IOException e){
+                        }
                         break;
                     case DOWN:
                         // score increase
@@ -207,17 +223,63 @@ public class GroundController extends Client {
                             leftScoreNum++;
                         else if(who.equals("right"))
                             rightScoreNum++;
+                        try{
+                            Client.output.write(11);
+                            Client.output.flush();
+                        }catch(IOException e){
+                        }
                         break;
                     case LEFT:
                         Controller.MoveLeft(form, who);
+                        try{
+                            Client.output.write(12);
+                            Client.output.flush();
+                        }catch(IOException e){
+                        }
                         break;
                     case UP:
                         MoveTurn(form, who);
+                        try{
+                            Client.output.write(13);
+                            Client.output.flush();
+                        }catch(IOException e){
+                        }
                         break;
                 }
             }
         });
     }
+    private static void enermyBehavior(Form form, String who) {
+        int m = 0;
+        try{
+            m = Client.input.read();
+        }catch (IOException e){
+
+        }
+
+        switch(m){
+            case 10://right
+                Controller.MoveRight(form, who);
+                break;
+            case 11://down
+                // score increase
+                MoveDown(form, who);
+                if(who.equals("left"))
+                    leftScoreNum++;
+                else if(who.equals("right"))
+                    rightScoreNum++;
+                    break;
+            case 12:
+                Controller.MoveLeft(form, who);
+                break;
+            case 13://up
+                MoveTurn(form, who);
+                break;
+            default:
+                System.out.println("ERROR in enermy move receiving");
+        }
+    }
+
 
     private static void MoveTurn(Form form, String who) {
         int f = form.form;
@@ -616,17 +678,17 @@ public class GroundController extends Client {
             if (who.equals("left")) {
                 RemoveRows(leftGround, who);
                 Form left = leftNextObj;
-                leftNextObj = Controller.makeRect();
+                leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++)-'0');
                 leftObject = left;
                 leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
                 moveOnKeyPress(left, "left");
             } else if (who.equals("right")) {
                 RemoveRows(rightGround, who);
                 Form right = rightNextObj;
-                rightNextObj = Controller.makeRect();
+                rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++)-'0');
                 rightObject = right;
                 rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
-                moveOnKeyPress(right, "right");
+                enermyBehavior(right, "right");
             }
         }
 

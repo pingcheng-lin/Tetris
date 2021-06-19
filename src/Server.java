@@ -7,6 +7,7 @@ import java.lang.String;
 
 class Server {
     static Map<Socket, Socket> mapEnemy = new HashMap<>();
+    static Map<String, String> mapEnemyName = new HashMap<>();
     static Vector<Socket> players = new Vector<Socket>();
     static Vector<String> playersName = new Vector<String>();
     static int countPlayer = 0;
@@ -14,17 +15,25 @@ class Server {
     public static void main(String args[]) throws Exception {
         ServerSocket serverSocket = new ServerSocket(1234); // create a server socket
 
+        Thread wr  = new Thread(new WaitingRoom());
+        // gameing monitor
+        wr.start();
+
         while (true) {
             System.out.println("Waiting player...");
             Socket connection = serverSocket.accept(); // establish connection and waits for the client
             System.out.println("A Connection Success");
             countPlayer++;
-            if (countPlayer == 2)
+
+            slaveForClientConnection sc = new slaveForClientConnection(connection); // socket to socket connection
+            Thread th = new Thread(sc);
+            th.start();
+            if (countPlayer == 2){
+                System.out.println("is it two players now?");
+            // start a game
                 while (true)
                     ;
-            slaveForClientConnection wr = new slaveForClientConnection(connection); // socket to socket connection
-            Thread th = new Thread(wr);
-            th.start();
+            }
         }
     }
 }
@@ -32,45 +41,55 @@ class Server {
 class WaitingRoom implements Runnable {
     protected Socket player1;
     protected Socket player2;
-    protected DataInputStream inputOfPlayer1;
-    protected DataInputStream inputOfPlayer2;
-    protected DataOutputStream outputOfPlayer1;
-    protected DataOutputStream outputOfPlayer2;
-    protected ObjectOutputStream outputOfObjectOfPlayer1;
-    protected ObjectOutputStream outputOfObjectOfPlayer2;
+    protected String player1Name;
+    protected String player2Name;
+
     public static Boolean gameIsOpen = false;
+    public static Integer gameingSeed = 0;
 
     WaitingRoom() {
 
     }
 
     public void run() {
-        while (Server.players.size() == 2) {
+        System.out.println("Hello, gaming room is here");
+        while (Server.players.size() < 2)
+            ;//System.out.println("Not yet enough players to start the game");
+        System.out.println("Game is ready to initialize");
+        
+        
             // Start the game when 2 player are ready
+            // First now, 2 players is limited
             player1 = Server.players.get(0);
             player2 = Server.players.get(1);
+            // get Socket
             Server.mapEnemy.put(player1, player2);
             Server.mapEnemy.put(player2, player1);
-            try {
-                outputOfObjectOfPlayer1 = new ObjectOutputStream(player1.getOutputStream());
-                outputOfObjectOfPlayer2 = new ObjectOutputStream(player2.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            synchronized (gameIsOpen) {
-                gameIsOpen = true;
-            }
-            while (true) { // while gameIsOver
-                // 負責一直送方塊給客戶端
-                Form aPattern = Controller.makeRect();
-                try {
-                    outputOfObjectOfPlayer1.writeObject(aPattern);
-                    outputOfObjectOfPlayer2.writeObject(aPattern);
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+            player1Name = Server.playersName.get(0);
+            player2Name = Server.playersName.get(1);
+            Server.mapEnemyName.put(player1Name, player2Name);
+            Server.mapEnemyName.put(player2Name, player1Name);
+            
+            try{
+                gameingSeed = (int)(Math.random()*10);
+                // generate gaming seed
+                System.out.println(gameingSeed);
+                DataOutputStream outputOfPlayer1 = new DataOutputStream(player1.getOutputStream());
+                DataOutputStream outputOfPlayer2 = new DataOutputStream(player2.getOutputStream());
+                outputOfPlayer1.write(gameingSeed);
+                outputOfPlayer1.flush();
+                outputOfPlayer2.write(gameingSeed);
+                outputOfPlayer2.flush();
+
+                synchronized(gameIsOpen){
+                    gameIsOpen = true;
+                    //enable game of thread of slaveClient
                 }
+            }catch (IOException e){
+            System.out.println("is it start?");
             }
-        }
+        
     }
 }
 
@@ -89,29 +108,37 @@ class slaveForClientConnection implements Runnable {
 
     public void run() {
         try {
-            System.out.println("Wait player name...");
             String myName = input.readUTF();//read name
-            System.out.println("Player name: " + myName + " login.");
+            //System.out.println("Player name: " + myName + " login.");
+            Server.players.add(connection);
 
             if (!Server.playersName.contains(myName)) {
+                // check dup player
                 Server.playersName.add(myName);
-                System.out.println("Duplicate: " + myName);
+                System.out.println(myName+" is in players list now");
             }
             // 接收動作
-            synchronized (WaitingRoom.gameIsOpen) {
+            synchronized (WaitingRoom.gameIsOpen){
                 while (!WaitingRoom.gameIsOpen)
-                    ;
+                    System.out.println("Waiting Game start!");
+                    //;
             }
+            System.out.println("enermy name " + Server.mapEnemyName.get(myName));
+            output.writeUTF(Server.mapEnemyName.get(myName));
+            output.flush();
+            System.out.println("ok");
 
             outputToOpponent = new DataOutputStream(Server.mapEnemy.get(connection).getOutputStream());
             while (true) {
-                int behaviorToOpponent = input.readInt();
-                outputToOpponent.writeInt(behaviorToOpponent); // send to opponent
-                synchronized (WaitingRoom.gameIsOpen) {
-                    if (behaviorToOpponent == 5)
-                        WaitingRoom.gameIsOpen = false;
-                    if (!WaitingRoom.gameIsOpen)
-                        break;
+                int behaviorToOpponent = input.read();
+                // receive my move of keyboard
+                outputToOpponent.write(behaviorToOpponent);
+                // write the behavior to opponent
+                outputToOpponent.flush();
+
+                if (behaviorToOpponent == 15){
+                    WaitingRoom.gameIsOpen = false;
+                    break;
                 }
             }
 

@@ -40,11 +40,30 @@ public class LoginController extends Client {
 
     @FXML
     public void submitName(ActionEvent event) throws Exception {
-        myName = nameField.getText();
-        System.out.println(myName);
-        if (myName.equals("a")) {
+        Client.myName = nameField.getText();
+        System.out.println(Client.myName);
+        //read name from user input
+        if (Client.myName.equals("a") || Client.myName.equals("b")) {
             submitButton.setDisable(true);
             submitButton.setText("Wait");
+            
+            System.out.println(Client.myName);
+            Client.output.writeUTF(Client.myName);
+            // write my name to server
+            Client.output.flush();
+
+            // Wait for game start
+            Client.patternSeedNumber = Client.input.read();
+            // read pattern seed for pattern generation
+            System.out.println("Seed number "+Client.patternSeedNumber);
+            Client.myPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
+            Client.enPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
+            System.out.println("Another error?");
+
+            Client.enemyName = Client.input.readUTF();
+            // read enermy Name
+            System.out.println(Client.enemyName);
+            System.out.println("ok");
 
             Thread thread = new Thread(new Runnable() {
                 @Override

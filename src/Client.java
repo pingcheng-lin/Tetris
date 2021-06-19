@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import java.net.*;
 import java.io.*;
 import java.io.IOException;
+import java.util.*;
 
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -16,9 +17,6 @@ import javafx.scene.layout.StackPane;
 
 public class Client extends Application {
 
-    public static DataInputStream input;
-    public static DataOutputStream output;
-
     public static Stage stage;
     public static Pane middleGround = new Pane();
     public static Pane leftGround = new Pane();
@@ -27,14 +25,37 @@ public class Client extends Application {
     public static Scene scene2 = new Scene(root, 666, 550);
     public static String enemyName = new String();
     public static String myName = new String();
+    public static Socket clientSocket;
+    public static DataInputStream input; 
+    public static DataOutputStream output;
+    public static String[] allPatternPool = new String[10];
+    public static StringBuilder myPattern = new StringBuilder();
+    public static StringBuilder enPattern = new StringBuilder();
+    public static Integer patternSeedNumber;
+    public static Integer myPatternNumber = 0;
+    public static Integer enPatternNumber = 0;
+    public static File myObject;
+    public static Scanner myReader;
 
     public static void main(String[] args) throws UnknownHostException, IOException {
         // Socket socketClient = new Socket("localhost", 1234);
         // input = new DataInputStream(socketClient.getInputStream());
         // output = new DataOutputStream(socketClient.getOutputStream());
-        launch(args);
         // socketClient.close();
+        myObject = new File("pattern.txt");
+        myReader = new Scanner(myObject);
+        int i = 0;
+        while(myReader.hasNextLine()){
+            allPatternPool[i] = myReader.nextLine();
+            //System.out.println(allPatternPool[i]);
+            i++;
+        }
 
+        clientSocket = new Socket("localhost", 1234);
+        input = new DataInputStream(clientSocket.getInputStream());
+        output = new DataOutputStream(clientSocket.getOutputStream());
+
+        launch(args);
     }
 
     @Override
