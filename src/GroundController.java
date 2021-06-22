@@ -73,7 +73,7 @@ public class GroundController extends Client {
         for (int[] a : rightArray) {
             Arrays.fill(a, 0);
         }
-
+        System.out.println("x1");
         // left player data
         Label myNameText = new Label(myName);
         myNameText.setStyle("-fx-font: 20 Arial;");
@@ -88,6 +88,7 @@ public class GroundController extends Client {
         leftScore.setLayoutX(25);
         leftScore.setLayoutY(525);
         middleGround.getChildren().addAll(myNameText, leftLine, leftScore);
+        System.out.println("x2");
 
         // right player data
         Label enemyNameText = new Label(enemyName);
@@ -103,27 +104,31 @@ public class GroundController extends Client {
         rightScore.setLayoutX(100);
         rightScore.setLayoutY(525);
         middleGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
+        System.out.println("x3");
 
-        startRect = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber)-'0');
+        startRect = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber) - '0');
 
         myPatternNumber++;
         enPatternNumber++;
 
-        //init first rect from where server sent
+        // init first rect from where server sent
+        Form right = startRect;
+        rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
+        MoveDown(right, "right");
+        rightObject = right;
+        rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
+        System.out.println("x5");
+
+        // init first rect from where server sent
         Form left = startRect;
         leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
         moveOnKeyPress(left, "left");
         leftObject = left;
-        leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++)-'0');
-
-        //init first rect from where server sent
-        Form right = startRect;
-        rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
-        enermyBehavior(right, "right");
-        rightObject = right;
-        rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++)-'0');
+        leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++) - '0');
+        System.out.println("x4");
 
         stage.setScene(scene2);
+        stage.setResizable(false);
         stage.show();
 
         Timer leftFall = new Timer();
@@ -210,76 +215,96 @@ public class GroundController extends Client {
                 switch (event.getCode()) {
                     case RIGHT:
                         Controller.MoveRight(form, who);
-                        try{
+                        try {
                             Client.output.write(10);
                             Client.output.flush();
-                        }catch(IOException e){
+                        } catch (IOException e) {
                         }
                         break;
                     case DOWN:
                         // score increase
                         MoveDown(form, who);
-                        if(who.equals("left"))
+                        if (who.equals("left"))
                             leftScoreNum++;
-                        else if(who.equals("right"))
+                        else if (who.equals("right"))
                             rightScoreNum++;
-                        try{
+                        try {
                             Client.output.write(11);
                             Client.output.flush();
-                        }catch(IOException e){
+                        } catch (IOException e) {
                         }
                         break;
                     case LEFT:
                         Controller.MoveLeft(form, who);
-                        try{
+                        try {
                             Client.output.write(12);
                             Client.output.flush();
-                        }catch(IOException e){
+                        } catch (IOException e) {
                         }
                         break;
                     case UP:
                         MoveTurn(form, who);
-                        try{
+                        try {
                             Client.output.write(13);
                             Client.output.flush();
-                        }catch(IOException e){
+                        } catch (IOException e) {
                         }
                         break;
                 }
             }
         });
     }
+
     private static void enermyBehavior(Form form, String who) {
-        int m = 0;
-        try{
-            m = Client.input.read();
-        }catch (IOException e){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Runnable updater = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            int m = 0;
+                            try {
+                                m = Client.input.read();
+                                System.out.println("enemy move" + m);
+                            } catch (IOException e) {
+                            }
 
-        }
-
-        switch(m){
-            case 10://right
-                Controller.MoveRight(form, who);
-                break;
-            case 11://down
-                // score increase
-                MoveDown(form, who);
-                if(who.equals("left"))
-                    leftScoreNum++;
-                else if(who.equals("right"))
-                    rightScoreNum++;
-                    break;
-            case 12:
-                Controller.MoveLeft(form, who);
-                break;
-            case 13://up
-                MoveTurn(form, who);
-                break;
-            default:
-                System.out.println("ERROR in enermy move receiving");
-        }
+                            switch (m) {
+                                case 10:// right
+                                    Controller.MoveRight(form, who);
+                                    break;
+                                case 11:// down
+                                    // score increase
+                                    MoveDown(form, who);
+                                    if (who.equals("left"))
+                                        leftScoreNum++;
+                                    else if (who.equals("right"))
+                                        rightScoreNum++;
+                                    break;
+                                case 12:
+                                    Controller.MoveLeft(form, who);
+                                    break;
+                                case 13:// up
+                                    MoveTurn(form, who);
+                                    break;
+                                default:
+                                    System.out.println("ERROR in enermy move receiving");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                try {
+                    Platform.runLater(updater);
+                } catch (Exception e) {
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
-
 
     private static void MoveTurn(Form form, String who) {
         int f = form.form;
@@ -289,7 +314,7 @@ public class GroundController extends Client {
         Rectangle d = form.d;
         switch (form.getName()) {
             case "j":
-                if (f == 1 && cB(a, 1, -1) && cB(c, -1, -1) && cB(d, -2, -2)) {
+                if (f == 1 && cB(a, 1, -1, who) && cB(c, -1, -1, who) && cB(d, -2, -2, who)) {
                     MoveRight(form.a);
                     MoveDown(form.a);
                     MoveDown(form.c);
@@ -301,7 +326,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(a, -1, -1) && cB(c, -1, 1) && cB(d, -2, 2)) {
+                if (f == 2 && cB(a, -1, -1, who) && cB(c, -1, 1, who) && cB(d, -2, 2, who)) {
                     MoveDown(form.a);
                     MoveLeft(form.a);
                     MoveLeft(form.c);
@@ -313,7 +338,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(a, -1, 1) && cB(c, 1, 1) && cB(d, 2, 2)) {
+                if (f == 3 && cB(a, -1, 1, who) && cB(c, 1, 1, who) && cB(d, 2, 2, who)) {
                     MoveLeft(form.a);
                     MoveUp(form.a);
                     MoveUp(form.c);
@@ -325,7 +350,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(a, 1, 1) && cB(c, 1, -1) && cB(d, 2, -2)) {
+                if (f == 4 && cB(a, 1, 1, who) && cB(c, 1, -1, who) && cB(d, 2, -2, who)) {
                     MoveUp(form.a);
                     MoveRight(form.a);
                     MoveRight(form.c);
@@ -339,7 +364,7 @@ public class GroundController extends Client {
                 }
                 break;
             case "l":
-                if (f == 1 && cB(a, 1, -1) && cB(c, 1, 1) && cB(b, 2, 2)) {
+                if (f == 1 && cB(a, 1, -1, who) && cB(c, 1, 1, who) && cB(b, 2, 2, who)) {
                     MoveRight(form.a);
                     MoveDown(form.a);
                     MoveUp(form.c);
@@ -351,7 +376,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(a, -1, -1) && cB(b, 2, -2) && cB(c, 1, -1)) {
+                if (f == 2 && cB(a, -1, -1, who) && cB(b, 2, -2, who) && cB(c, 1, -1, who)) {
                     MoveDown(form.a);
                     MoveLeft(form.a);
                     MoveRight(form.b);
@@ -363,7 +388,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(a, -1, 1) && cB(c, -1, -1) && cB(b, -2, -2)) {
+                if (f == 3 && cB(a, -1, 1, who) && cB(c, -1, -1, who) && cB(b, -2, -2, who)) {
                     MoveLeft(form.a);
                     MoveUp(form.a);
                     MoveDown(form.c);
@@ -375,7 +400,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(a, 1, 1) && cB(b, -2, 2) && cB(c, -1, 1)) {
+                if (f == 4 && cB(a, 1, 1, who) && cB(b, -2, 2, who) && cB(c, -1, 1, who)) {
                     MoveUp(form.a);
                     MoveRight(form.a);
                     MoveLeft(form.b);
@@ -391,7 +416,7 @@ public class GroundController extends Client {
             case "o":
                 break;
             case "s":
-                if (f == 1 && cB(a, -1, -1) && cB(c, -1, 1) && cB(d, 0, 2)) {
+                if (f == 1 && cB(a, -1, -1, who) && cB(c, -1, 1, who) && cB(d, 0, 2, who)) {
                     MoveDown(form.a);
                     MoveLeft(form.a);
                     MoveLeft(form.c);
@@ -401,7 +426,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(a, 1, 1) && cB(c, 1, -1) && cB(d, 0, -2)) {
+                if (f == 2 && cB(a, 1, 1, who) && cB(c, 1, -1, who) && cB(d, 0, -2, who)) {
                     MoveUp(form.a);
                     MoveRight(form.a);
                     MoveRight(form.c);
@@ -411,7 +436,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(a, -1, -1) && cB(c, -1, 1) && cB(d, 0, 2)) {
+                if (f == 3 && cB(a, -1, -1, who) && cB(c, -1, 1, who) && cB(d, 0, 2, who)) {
                     MoveDown(form.a);
                     MoveLeft(form.a);
                     MoveLeft(form.c);
@@ -421,7 +446,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(a, 1, 1) && cB(c, 1, -1) && cB(d, 0, -2)) {
+                if (f == 4 && cB(a, 1, 1, who) && cB(c, 1, -1, who) && cB(d, 0, -2, who)) {
                     MoveUp(form.a);
                     MoveRight(form.a);
                     MoveRight(form.c);
@@ -433,7 +458,7 @@ public class GroundController extends Client {
                 }
                 break;
             case "t":
-                if (f == 1 && cB(a, 1, 1) && cB(d, -1, -1) && cB(c, -1, 1)) {
+                if (f == 1 && cB(a, 1, 1, who) && cB(d, -1, -1, who) && cB(c, -1, 1, who)) {
                     MoveUp(form.a);
                     MoveRight(form.a);
                     MoveDown(form.d);
@@ -443,7 +468,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(a, 1, -1) && cB(d, -1, 1) && cB(c, 1, 1)) {
+                if (f == 2 && cB(a, 1, -1, who) && cB(d, -1, 1, who) && cB(c, 1, 1, who)) {
                     MoveRight(form.a);
                     MoveDown(form.a);
                     MoveLeft(form.d);
@@ -453,7 +478,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(a, -1, -1) && cB(d, 1, 1) && cB(c, 1, -1)) {
+                if (f == 3 && cB(a, -1, -1, who) && cB(d, 1, 1, who) && cB(c, 1, -1, who)) {
                     MoveDown(form.a);
                     MoveLeft(form.a);
                     MoveUp(form.d);
@@ -463,7 +488,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(a, -1, 1) && cB(d, 1, -1) && cB(c, -1, -1)) {
+                if (f == 4 && cB(a, -1, 1, who) && cB(d, 1, -1, who) && cB(c, -1, -1, who)) {
                     MoveLeft(form.a);
                     MoveUp(form.a);
                     MoveRight(form.d);
@@ -475,7 +500,7 @@ public class GroundController extends Client {
                 }
                 break;
             case "z":
-                if (f == 1 && cB(b, 1, 1) && cB(c, -1, 1) && cB(d, -2, 0)) {
+                if (f == 1 && cB(b, 1, 1, who) && cB(c, -1, 1, who) && cB(d, -2, 0, who)) {
                     MoveUp(form.b);
                     MoveRight(form.b);
                     MoveLeft(form.c);
@@ -485,7 +510,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(b, -1, -1) && cB(c, 1, -1) && cB(d, 2, 0)) {
+                if (f == 2 && cB(b, -1, -1, who) && cB(c, 1, -1, who) && cB(d, 2, 0, who)) {
                     MoveDown(form.b);
                     MoveLeft(form.b);
                     MoveRight(form.c);
@@ -495,7 +520,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(b, 1, 1) && cB(c, -1, 1) && cB(d, -2, 0)) {
+                if (f == 3 && cB(b, 1, 1, who) && cB(c, -1, 1, who) && cB(d, -2, 0, who)) {
                     MoveUp(form.b);
                     MoveRight(form.b);
                     MoveLeft(form.c);
@@ -505,7 +530,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(b, -1, -1) && cB(c, 1, -1) && cB(d, 2, 0)) {
+                if (f == 4 && cB(b, -1, -1, who) && cB(c, 1, -1, who) && cB(d, 2, 0, who)) {
                     MoveDown(form.b);
                     MoveLeft(form.b);
                     MoveRight(form.c);
@@ -517,7 +542,7 @@ public class GroundController extends Client {
                 }
                 break;
             case "i":
-                if (f == 1 && cB(a, 2, 2) && cB(b, 1, 1) && cB(d, -1, -1)) {
+                if (f == 1 && cB(a, 2, 2, who) && cB(b, 1, 1, who) && cB(d, -1, -1, who)) {
                     MoveUp(form.a);
                     MoveUp(form.a);
                     MoveRight(form.a);
@@ -529,7 +554,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 2 && cB(a, -2, -2) && cB(b, -1, -1) && cB(d, 1, 1)) {
+                if (f == 2 && cB(a, -2, -2, who) && cB(b, -1, -1, who) && cB(d, 1, 1, who)) {
                     MoveDown(form.a);
                     MoveDown(form.a);
                     MoveLeft(form.a);
@@ -541,7 +566,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 3 && cB(a, 2, 2) && cB(b, 1, 1) && cB(d, -1, -1)) {
+                if (f == 3 && cB(a, 2, 2, who) && cB(b, 1, 1, who) && cB(d, -1, -1, who)) {
                     MoveUp(form.a);
                     MoveUp(form.a);
                     MoveRight(form.a);
@@ -553,7 +578,7 @@ public class GroundController extends Client {
                     form.changeForm();
                     break;
                 }
-                if (f == 4 && cB(a, -2, -2) && cB(b, -1, -1) && cB(d, 1, 1)) {
+                if (f == 4 && cB(a, -2, -2, who) && cB(b, -1, -1, who) && cB(d, 1, 1, who)) {
                     MoveDown(form.a);
                     MoveDown(form.a);
                     MoveLeft(form.a);
@@ -669,7 +694,8 @@ public class GroundController extends Client {
             temp = rightArray;
 
         if (form.a.getY() == YMAX - SIZE || form.b.getY() == YMAX - SIZE || form.c.getY() == YMAX - SIZE
-                || form.d.getY() == YMAX - SIZE || moveA(form, who) || moveB(form, who) || moveC(form, who) || moveD(form, who)) {
+                || form.d.getY() == YMAX - SIZE || moveA(form, who) || moveB(form, who) || moveC(form, who)
+                || moveD(form, who)) {
             temp[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
             temp[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
             temp[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
@@ -678,14 +704,14 @@ public class GroundController extends Client {
             if (who.equals("left")) {
                 RemoveRows(leftGround, who);
                 Form left = leftNextObj;
-                leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++)-'0');
+                leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++) - '0');
                 leftObject = left;
                 leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
                 moveOnKeyPress(left, "left");
             } else if (who.equals("right")) {
                 RemoveRows(rightGround, who);
                 Form right = rightNextObj;
-                rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++)-'0');
+                rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
                 rightObject = right;
                 rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
                 enermyBehavior(right, "right");
@@ -708,34 +734,34 @@ public class GroundController extends Client {
     }
 
     private static boolean moveA(Form form, String who) {
-        if(who.equals("left"))
+        if (who.equals("left"))
             return (leftArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveB(Form form, String who) {
-        if(who.equals("left"))
+        if (who.equals("left"))
             return (leftArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveC(Form form, String who) {
-        if(who.equals("left"))
+        if (who.equals("left"))
             return (leftArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
     }
 
     private static boolean moveD(Form form, String who) {
-        if(who.equals("left"))
+        if (who.equals("left"))
             return (leftArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean cB(Rectangle rect, int x, int y) {
+    private static boolean cB(Rectangle rect, int x, int y, String who) {
         boolean xb = false;
         boolean yb = false;
         if (x >= 0)
@@ -746,6 +772,9 @@ public class GroundController extends Client {
             yb = rect.getY() - y * MOVE > 0;
         if (y < 0)
             yb = rect.getY() + y * MOVE < YMAX;
-        return xb && yb && leftArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
+        if (who.equals("left"))
+            return xb && yb && leftArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
+        else
+            return xb && yb && rightArray[((int) rect.getX() / SIZE) + x][((int) rect.getY() / SIZE) - y] == 0;
     }
 }

@@ -60,10 +60,7 @@ public class LoginController extends Client {
             Client.enPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
             System.out.println("Another error?");
 
-            Client.enemyName = Client.input.readUTF();
-            // read enermy Name
-            System.out.println(Client.enemyName);
-            System.out.println("ok");
+            
 
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -72,6 +69,7 @@ public class LoginController extends Client {
                         @Override
                         public void run() {
                             try {
+                                
                                 GroundController.initialize();
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -81,7 +79,10 @@ public class LoginController extends Client {
                     try {
                         // output.writeUTF(myName);
                         // enemyName = input.readUTF();
-
+                        Client.enemyName = Client.input.readUTF();
+                        // read enermy Name
+                        System.out.println(Client.enemyName);
+                        System.out.println("ok");
                         stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
                         middleGround = FXMLLoader.load(getClass().getResource("GroundView.fxml"));
                         root.add(leftGround, 0, 0);

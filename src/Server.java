@@ -82,10 +82,10 @@ class WaitingRoom implements Runnable {
                 outputOfPlayer2.write(gameingSeed);
                 outputOfPlayer2.flush();
 
-                synchronized(gameIsOpen){
+                //synchronized(gameIsOpen){
                     gameIsOpen = true;
                     //enable game of thread of slaveClient
-                }
+                //}
             }catch (IOException e){
             System.out.println("is it start?");
             }
@@ -118,11 +118,11 @@ class slaveForClientConnection implements Runnable {
                 System.out.println(myName+" is in players list now");
             }
             // 接收動作
-            synchronized (WaitingRoom.gameIsOpen){
+            //synchronized (WaitingRoom.gameIsOpen){
                 while (!WaitingRoom.gameIsOpen)
                     System.out.println("Waiting Game start!");
                     //;
-            }
+            //}
             System.out.println("enermy name " + Server.mapEnemyName.get(myName));
             output.writeUTF(Server.mapEnemyName.get(myName));
             output.flush();

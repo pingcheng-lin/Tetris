@@ -119,7 +119,7 @@ public class Controller {
 
     public static Form makeRect(int seed) {
         // 7 kinds of pattern of rectangle
-        System.out.println(seed);
+        //System.out.println(seed);
         String name;
         Rectangle a = new Rectangle(SIZE - 1, SIZE - 1), b = new Rectangle(SIZE - 1, SIZE - 1),
                 c = new Rectangle(SIZE - 1, SIZE - 1), d = new Rectangle(SIZE - 1, SIZE - 1);
