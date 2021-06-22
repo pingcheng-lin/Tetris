@@ -58,7 +58,7 @@ public class LoginController extends Client {
             System.out.println("Seed number "+Client.patternSeedNumber);
             Client.myPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
             Client.enPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
-            System.out.println("Another error?");
+            //System.out.println("Another error?");
 
             
 

@@ -107,17 +107,16 @@ public class GroundController extends Client {
         System.out.println("x3");
 
         startRect = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber) - '0');
-
+        Form enStartRect = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber) - '0');
         myPatternNumber++;
         enPatternNumber++;
 
         // init first rect from where server sent
-        Form right = startRect;
+        Form right = enStartRect;
         rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
         MoveDown(right, "right");
         rightObject = right;
         rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
-        System.out.println("x5");
 
         // init first rect from where server sent
         Form left = startRect;
@@ -125,7 +124,6 @@ public class GroundController extends Client {
         moveOnKeyPress(left, "left");
         leftObject = left;
         leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++) - '0');
-        System.out.println("x4");
 
         stage.setScene(scene2);
         stage.setResizable(false);
@@ -205,10 +203,11 @@ public class GroundController extends Client {
             }
         };
         rightFall.schedule(rightTask, 0, 500);
+        enermyBehavior();
     }
 
     // need to make another method for right
-    private static void moveOnKeyPress(Form form, String who) {
+    public static void moveOnKeyPress(Form form, String who) {
         scene2.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -255,50 +254,40 @@ public class GroundController extends Client {
         });
     }
 
-    private static void enermyBehavior(Form form, String who) {
+    public static void enermyBehavior() {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Runnable updater = new Runnable() {
-                    @Override
-                    public void run() {
+                while (true) {
+                    try {
+                        int m = 0;
                         try {
-                            int m = 0;
-                            try {
-                                m = Client.input.read();
-                                System.out.println("enemy move" + m);
-                            } catch (IOException e) {
-                            }
-
-                            switch (m) {
-                                case 10:// right
-                                    Controller.MoveRight(form, who);
-                                    break;
-                                case 11:// down
-                                    // score increase
-                                    MoveDown(form, who);
-                                    if (who.equals("left"))
-                                        leftScoreNum++;
-                                    else if (who.equals("right"))
-                                        rightScoreNum++;
-                                    break;
-                                case 12:
-                                    Controller.MoveLeft(form, who);
-                                    break;
-                                case 13:// up
-                                    MoveTurn(form, who);
-                                    break;
-                                default:
-                                    System.out.println("ERROR in enermy move receiving");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            m = Client.input.read();
+                            System.out.println("enemy move" + m);
+                        } catch (IOException e) {
                         }
+
+                        switch (m) {
+                            case 10:// right
+                                Controller.MoveRight(rightObject, "right");
+                                break;
+                            case 11:// down
+                                // score increase
+                                MoveDown(rightObject, "right");
+                                rightScoreNum++;
+                                break;
+                            case 12:
+                                Controller.MoveLeft(rightObject, "right");
+                                break;
+                            case 13:// up
+                                MoveTurn(rightObject, "right");
+                                break;
+                            default:
+                                System.out.println("ERROR in enemy move receiving");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                };
-                try {
-                    Platform.runLater(updater);
-                } catch (Exception e) {
                 }
             }
         });
@@ -306,7 +295,7 @@ public class GroundController extends Client {
         thread.start();
     }
 
-    private static void MoveTurn(Form form, String who) {
+    public static void MoveTurn(Form form, String who) {
         int f = form.form;
         Rectangle a = form.a;
         Rectangle b = form.b;
@@ -594,7 +583,7 @@ public class GroundController extends Client {
         }
     }
 
-    private static void RemoveRows(Pane pane, String who) {
+    public static void RemoveRows(Pane pane, String who) {
         ArrayList<Node> rects = new ArrayList<Node>();
         ArrayList<Integer> lines = new ArrayList<Integer>();
         ArrayList<Node> newrects = new ArrayList<Node>();
@@ -625,9 +614,11 @@ public class GroundController extends Client {
                 if (who.equals("left")) {
                     leftScoreNum += 50;
                     leftLinesNum++;
+                    // write line to server
                 } else if (who.equals("right")) {
                     rightScoreNum += 50;
                     rightLinesNum++;
+                    // write to server
                 }
 
                 for (Node node : rects) {
@@ -664,28 +655,28 @@ public class GroundController extends Client {
             } while (lines.size() > 0);
     }
 
-    private static void MoveDown(Rectangle rect) {
+    public static void MoveDown(Rectangle rect) {
         if (rect.getY() + MOVE < YMAX)
             rect.setY(rect.getY() + MOVE);
 
     }
 
-    private static void MoveRight(Rectangle rect) {
+    public static void MoveRight(Rectangle rect) {
         if (rect.getX() + MOVE <= XMAX - SIZE)
             rect.setX(rect.getX() + MOVE);
     }
 
-    private static void MoveLeft(Rectangle rect) {
+    public static void MoveLeft(Rectangle rect) {
         if (rect.getX() - MOVE >= 0)
             rect.setX(rect.getX() - MOVE);
     }
 
-    private static void MoveUp(Rectangle rect) {
+    public static void MoveUp(Rectangle rect) {
         if (rect.getY() - MOVE > 0)
             rect.setY(rect.getY() - MOVE);
     }
 
-    private static void MoveDown(Form form, String who) {
+    public static void MoveDown(Form form, String who) {
         int[][] temp = {};
 
         if (who.equals("left"))
@@ -714,7 +705,7 @@ public class GroundController extends Client {
                 rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
                 rightObject = right;
                 rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
-                enermyBehavior(right, "right");
+                // enermyBehavior();
             }
         }
 
@@ -733,35 +724,35 @@ public class GroundController extends Client {
         }
     }
 
-    private static boolean moveA(Form form, String who) {
+    public static boolean moveA(Form form, String who) {
         if (who.equals("left"))
             return (leftArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveB(Form form, String who) {
+    public static boolean moveB(Form form, String who) {
         if (who.equals("left"))
             return (leftArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.b.getX() / SIZE][((int) form.b.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveC(Form form, String who) {
+    public static boolean moveC(Form form, String who) {
         if (who.equals("left"))
             return (leftArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.c.getX() / SIZE][((int) form.c.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean moveD(Form form, String who) {
+    public static boolean moveD(Form form, String who) {
         if (who.equals("left"))
             return (leftArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
         else
             return (rightArray[(int) form.d.getX() / SIZE][((int) form.d.getY() / SIZE) + 1] == 1);
     }
 
-    private static boolean cB(Rectangle rect, int x, int y, String who) {
+    public static boolean cB(Rectangle rect, int x, int y, String who) {
         boolean xb = false;
         boolean yb = false;
         if (x >= 0)
