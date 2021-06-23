@@ -22,9 +22,11 @@ public class Client extends Application {
     public static Scene scene2 = new Scene(root, 666, 550);
     public static String enemyName = new String();
     public static String myName = new String();
+
     public static Socket clientSocket;
-    public static DataInputStream input; 
+    public static DataInputStream input;
     public static DataOutputStream output;
+
     public static String[] allPatternPool = new String[10];
     public static StringBuilder myPattern = new StringBuilder();
     public static StringBuilder enPattern = new StringBuilder();
@@ -35,15 +37,17 @@ public class Client extends Application {
     public static Scanner myReader;
 
     public static void main(String[] args) throws UnknownHostException, IOException {
-        
+
+        // get the order of pattern
         myObject = new File("pattern.txt");
         myReader = new Scanner(myObject);
         int i = 0;
-        while(myReader.hasNextLine()){
+        while (myReader.hasNextLine()) {
             allPatternPool[i] = myReader.nextLine();
             i++;
         }
 
+        // socket
         clientSocket = new Socket("localhost", 1234);
         input = new DataInputStream(clientSocket.getInputStream());
         output = new DataOutputStream(clientSocket.getOutputStream());
@@ -53,6 +57,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        // load fxml
         Parent root = FXMLLoader.load(getClass().getResource("LoginView.fxml"));
         Scene scene1 = new Scene(root);
         stage.setScene(scene1);

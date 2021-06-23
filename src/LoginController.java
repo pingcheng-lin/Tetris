@@ -38,21 +38,26 @@ public class LoginController extends Client {
 
     @FXML
     public void submitName(ActionEvent event) throws Exception {
+
+        // read name from user input
         Client.myName = nameField.getText();
         System.out.println(Client.myName);
-        //read name from user input
         submitButton.setDisable(true);
         submitButton.setText("Wait");
-            
         System.out.println("My name is: " + Client.myName);
+
         // write my name to server
         Client.output.writeUTF(Client.myName);
         Client.output.flush();
 
-        // Wait for game start
+        // Wait for game start, read seed
         Client.patternSeedNumber = Client.input.read();
+
         // read pattern seed for pattern generation
         System.out.println("Seed number: " + Client.patternSeedNumber);
+
+        // Client get patternpool from pattern.txt, then receive seed from server
+        // To determine which line will become the game pattern order
         Client.myPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
         Client.enPattern = new StringBuilder(Client.allPatternPool[Client.patternSeedNumber]);
 
@@ -62,7 +67,7 @@ public class LoginController extends Client {
                 Runnable updater = new Runnable() {
                     @Override
                     public void run() {
-                            try {
+                        try {
                             GroundController.initialize();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -70,15 +75,21 @@ public class LoginController extends Client {
                     }
                 };
                 try {
+                    // read enemy Name
                     Client.enemyName = Client.input.readUTF();
-                    // read enermy Name
                     System.out.println(Client.enemyName);
                     System.out.println("ok");
+
+                    // load fxml
                     stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
                     middleGround = FXMLLoader.load(getClass().getResource("GroundView.fxml"));
-                    root.add(leftGround, 0, 0);
-                    root.add(middleGround, 1, 0);
+
+                    // arrange three pane
+                    leftGround.setStyle("-fx-background-color: #ccffff");
+                    rightGround.setStyle("-fx-background-color: #ccffff");
                     root.add(rightGround, 2, 0);
+                    root.add(middleGround, 1, 0);
+                    root.add(leftGround, 0, 0);
                     ColumnConstraints aa = new ColumnConstraints();
                     ColumnConstraints bb = new ColumnConstraints();
                     ColumnConstraints cc = new ColumnConstraints();
@@ -91,8 +102,10 @@ public class LoginController extends Client {
                     cc.setPercentWidth(250);
                     cc.setHgrow(Priority.ALWAYS);
                     root.getColumnConstraints().add(cc);
+
                     Platform.runLater(updater);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         });
         thread.setDaemon(true);
