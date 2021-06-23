@@ -9,11 +9,8 @@ import java.io.*;
 import java.io.IOException;
 import java.util.*;
 
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 
 public class Client extends Application {
 
@@ -38,16 +35,12 @@ public class Client extends Application {
     public static Scanner myReader;
 
     public static void main(String[] args) throws UnknownHostException, IOException {
-        // Socket socketClient = new Socket("localhost", 1234);
-        // input = new DataInputStream(socketClient.getInputStream());
-        // output = new DataOutputStream(socketClient.getOutputStream());
-        // socketClient.close();
+        
         myObject = new File("pattern.txt");
         myReader = new Scanner(myObject);
         int i = 0;
         while(myReader.hasNextLine()){
             allPatternPool[i] = myReader.nextLine();
-            //System.out.println(allPatternPool[i]);
             i++;
         }
 

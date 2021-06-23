@@ -12,7 +12,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import java.net.*;
 import java.io.*;
 
 public class GroundController extends Client {
@@ -45,7 +44,7 @@ public class GroundController extends Client {
     public static final int SIZE = 25;
     public static int XMAX = SIZE * 10;
     public static int YMAX = SIZE * 22;
-
+    public static int winLineNum = 2;
     public static int[][] leftArray = new int[XMAX / SIZE][YMAX / SIZE];
     public static int[][] rightArray = new int[XMAX / SIZE][YMAX / SIZE];
 
@@ -65,6 +64,12 @@ public class GroundController extends Client {
 
     public static Form startRect = new Form();
 
+    public static int tempRightScore = 0;
+    public static int tempRightLine = 0;
+
+    public static int leftEnd = 0;//identify someone win or not, if win count until 10
+    public static int rightEnd = 0;
+
     static void initialize() throws Exception {
 
         for (int[] a : leftArray) {
@@ -73,7 +78,7 @@ public class GroundController extends Client {
         for (int[] a : rightArray) {
             Arrays.fill(a, 0);
         }
-        System.out.println("x1");
+
         // left player data
         Label myNameText = new Label(myName);
         myNameText.setStyle("-fx-font: 20 Arial;");
@@ -88,7 +93,6 @@ public class GroundController extends Client {
         leftScore.setLayoutX(25);
         leftScore.setLayoutY(525);
         middleGround.getChildren().addAll(myNameText, leftLine, leftScore);
-        System.out.println("x2");
 
         // right player data
         Label enemyNameText = new Label(enemyName);
@@ -104,26 +108,23 @@ public class GroundController extends Client {
         rightScore.setLayoutX(100);
         rightScore.setLayoutY(525);
         middleGround.getChildren().addAll(enemyNameText, rightLine, rightScore);
-        System.out.println("x3");
-
-        startRect = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber) - '0');
-        Form enStartRect = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber) - '0');
-        myPatternNumber++;
-        enPatternNumber++;
 
         // init first rect from where server sent
-        Form right = enStartRect;
+        Form right = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
         rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
         MoveDown(right, "right");
         rightObject = right;
         rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
 
         // init first rect from where server sent
-        Form left = startRect;
+        Form left = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++) - '0');
         leftGround.getChildren().addAll(left.a, left.b, left.c, left.d);
         moveOnKeyPress(left, "left");
         leftObject = left;
         leftNextObj = Controller.makeRect(Client.myPattern.charAt(Client.myPatternNumber++) - '0');
+
+        enemyNameText.setText(enemyName);
+        myNameText.setText(myName);
 
         stage.setScene(scene2);
         stage.setResizable(false);
@@ -140,22 +141,34 @@ public class GroundController extends Client {
                         else
                             leftTop = 0;
 
-                        if (leftTop == 2) {
+                        if (leftTop == 10 && !(leftLinesNum>=winLineNum)) {
                             // GAME OVER
                             Text over = new Text("GAME OVER");
                             over.setFill(Color.RED);
-                            over.setStyle("-fx-font: 70 arial;");
+                            over.setStyle("-fx-font: 35 arial;");
                             over.setY(250);
                             over.setX(10);
                             leftGround.getChildren().add(over);
                             leftGame = false;
                         }
 
-                        if (leftTop == 15) {
-                            // Exit
+                        if (leftTop == 5 || leftEnd == 5) {
                             System.exit(0);
                         }
 
+                        if(leftLinesNum >= winLineNum && leftGame) {
+                            Text over = new Text("Win");
+                            over.setFill(Color.GOLD);
+                            over.setStyle("-fx-font: 65 arial;");
+                            over.setY(250);
+                            over.setX(50);
+                            leftGround.getChildren().add(over);
+                            leftGame = false;
+                        }
+                        else if(leftLinesNum>=winLineNum && !leftGame){
+                            leftEnd++;
+                            leftTop = 0;
+                        }
                         if (leftGame) {
                             MoveDown(leftObject, "left");
                             leftLine.setText(Integer.toString(leftLinesNum));
@@ -178,25 +191,43 @@ public class GroundController extends Client {
                         else
                             rightTop = 0;
 
-                        if (rightTop == 2) {
+                        if (rightTop == winLineNum && !(rightLinesNum>=winLineNum)) {
                             // GAME OVER
                             Text over = new Text("GAME OVER");
                             over.setFill(Color.RED);
-                            over.setStyle("-fx-font: 70 arial;");
+                            over.setStyle("-fx-font: 35 arial;");
                             over.setY(250);
                             over.setX(10);
                             rightGround.getChildren().add(over);
                             rightGame = false;
                         }
                         // Exit
-                        if (rightTop == 15) {
+                        if (rightTop == 10 || rightEnd == 10) {
                             System.exit(0);
+                        }
+
+                        if(rightLinesNum >= winLineNum && rightGame) {
+                            Text over = new Text("Win");
+                            over.setFill(Color.GOLD);
+                            over.setStyle("-fx-font: 65 arial;");
+                            over.setY(250);
+                            over.setX(50);
+                            rightGround.getChildren().add(over);
+                            rightGame = false;
+                        }
+                        else if(rightLinesNum>=winLineNum && !rightGame) {
+                            rightEnd++;
+                            rightTop = 0;
                         }
 
                         if (rightGame) {
                             MoveDown(rightObject, "right");
-                            rightLine.setText(Integer.toString(rightLinesNum));
-                            rightScore.setText(Integer.toString(rightScoreNum));
+                            if (tempRightLine != rightLinesNum || rightLinesNum == 0)
+                                rightLine.setText(Integer.toString(rightLinesNum));
+                            if (tempRightScore != rightScoreNum || rightScoreNum == 0)
+                                rightScore.setText(Integer.toString(rightScoreNum));
+                            tempRightLine = rightLinesNum;
+                            tempRightScore = rightScoreNum;
                         }
                     }
                 });
@@ -211,45 +242,34 @@ public class GroundController extends Client {
         scene2.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case RIGHT:
-                        Controller.MoveRight(form, who);
-                        try {
-                            Client.output.write(10);
+                try{
+                    switch (event.getCode()) {
+                        case RIGHT:
+                            Controller.MoveRight(leftObject, who);
+                            Client.output.writeInt(10);
                             Client.output.flush();
-                        } catch (IOException e) {
-                        }
-                        break;
-                    case DOWN:
-                        // score increase
-                        MoveDown(form, who);
-                        if (who.equals("left"))
+                            break;
+                        case DOWN:
+                            // score increase
+                            MoveDown(leftObject, who);
                             leftScoreNum++;
-                        else if (who.equals("right"))
-                            rightScoreNum++;
-                        try {
-                            Client.output.write(11);
+                            Client.output.writeInt(11);
                             Client.output.flush();
-                        } catch (IOException e) {
-                        }
-                        break;
-                    case LEFT:
-                        Controller.MoveLeft(form, who);
-                        try {
-                            Client.output.write(12);
+                            Client.output.writeInt(leftScoreNum + 100);
                             Client.output.flush();
-                        } catch (IOException e) {
-                        }
-                        break;
-                    case UP:
-                        MoveTurn(form, who);
-                        try {
-                            Client.output.write(13);
+                            break;
+                        case LEFT:
+                            Controller.MoveLeft(leftObject, who);
+                            Client.output.writeInt(12);
                             Client.output.flush();
-                        } catch (IOException e) {
-                        }
-                        break;
-                }
+                            break;
+                        case UP:
+                            MoveTurn(leftObject, who);
+                            Client.output.writeInt(13);
+                            Client.output.flush();
+                            break;
+                    }
+                } catch (IOException e) {}
             }
         });
     }
@@ -260,11 +280,14 @@ public class GroundController extends Client {
             public void run() {
                 while (true) {
                     try {
-                        int m = 0;
-                        try {
-                            m = Client.input.read();
-                            System.out.println("enemy move" + m);
-                        } catch (IOException e) {
+                        int m = Client.input.readInt();
+                        System.out.println("enemy move" + m);
+                        if (m >= 100) {
+                            rightScoreNum = m - 100;
+                            continue;
+                        } else if (m >= 16) {
+                            rightLinesNum = m - 16;
+                            continue;
                         }
 
                         switch (m) {
@@ -274,9 +297,8 @@ public class GroundController extends Client {
                             case 11:// down
                                 // score increase
                                 MoveDown(rightObject, "right");
-                                rightScoreNum++;
                                 break;
-                            case 12:
+                            case 12:// left
                                 Controller.MoveLeft(rightObject, "right");
                                 break;
                             case 13:// up
@@ -614,11 +636,14 @@ public class GroundController extends Client {
                 if (who.equals("left")) {
                     leftScoreNum += 50;
                     leftLinesNum++;
-                    // write line to server
-                } else if (who.equals("right")) {
-                    rightScoreNum += 50;
-                    rightLinesNum++;
-                    // write to server
+                    try {
+                        Client.output.writeInt(leftLinesNum + 16);
+                        Client.output.flush();
+                        Client.output.writeInt(leftScoreNum + 100);
+                        Client.output.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 for (Node node : rects) {
@@ -678,20 +703,27 @@ public class GroundController extends Client {
 
     public static void MoveDown(Form form, String who) {
         int[][] temp = {};
-
-        if (who.equals("left"))
-            temp = leftArray;
-        else if (who.equals("right"))
-            temp = rightArray;
-
+        for (int i = 0; i < 22; i++) {
+            for (int j = 0; j < 10; j++)
+                System.out.print(rightArray[j][i]);
+            System.out.print("\n");
+        }
+        System.out.print("==========");
         if (form.a.getY() == YMAX - SIZE || form.b.getY() == YMAX - SIZE || form.c.getY() == YMAX - SIZE
                 || form.d.getY() == YMAX - SIZE || moveA(form, who) || moveB(form, who) || moveC(form, who)
                 || moveD(form, who)) {
-            temp[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
-            temp[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
-            temp[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
-            temp[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
-
+            if (who.equals("left")) {
+                leftArray[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
+                leftArray[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
+                leftArray[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
+                leftArray[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
+            } else {
+                rightArray[(int) form.a.getX() / SIZE][(int) form.a.getY() / SIZE] = 1;
+                rightArray[(int) form.b.getX() / SIZE][(int) form.b.getY() / SIZE] = 1;
+                rightArray[(int) form.c.getX() / SIZE][(int) form.c.getY() / SIZE] = 1;
+                rightArray[(int) form.d.getX() / SIZE][(int) form.d.getY() / SIZE] = 1;
+            }
+            System.out.println("123");
             if (who.equals("left")) {
                 RemoveRows(leftGround, who);
                 Form left = leftNextObj;
@@ -705,10 +737,13 @@ public class GroundController extends Client {
                 rightNextObj = Controller.makeRect(Client.enPattern.charAt(Client.enPatternNumber++) - '0');
                 rightObject = right;
                 rightGround.getChildren().addAll(right.a, right.b, right.c, right.d);
-                // enermyBehavior();
             }
         }
 
+        if (who.equals("left"))
+            temp = leftArray;
+        else if (who.equals("right"))
+            temp = rightArray;
         if (form.a.getY() + MOVE < YMAX && form.b.getY() + MOVE < YMAX && form.c.getY() + MOVE < YMAX
                 && form.d.getY() + MOVE < YMAX) {
             int movea = temp[(int) form.a.getX() / SIZE][((int) form.a.getY() / SIZE) + 1];

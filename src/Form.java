@@ -10,10 +10,7 @@ public class Form {
     private String name;
     public int form = 1;
 
-// Test
-    public Form(){
-
-    }
+    public Form(){}
 
     public Form(Rectangle a, Rectangle b, Rectangle c, Rectangle d) {
         this.a = a;
@@ -64,10 +61,9 @@ public class Form {
     }
 
     public void changeForm() {
-        if (form != 4) {
+        if (form != 4)
             form++;
-        } else {
+        else
             form = 1;
-        }
     }
 }

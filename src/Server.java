@@ -56,39 +56,35 @@ class WaitingRoom implements Runnable {
         while (Server.players.size() < 2)
             ;//System.out.println("Not yet enough players to start the game");
         System.out.println("Game is ready to initialize");
-        
-        
-            // Start the game when 2 player are ready
-            // First now, 2 players is limited
-            player1 = Server.players.get(0);
-            player2 = Server.players.get(1);
-            // get Socket
-            Server.mapEnemy.put(player1, player2);
-            Server.mapEnemy.put(player2, player1);
+    
+        // Start the game when 2 player are ready
+        // First now, 2 players is limited
+        player1 = Server.players.get(0);
+        player2 = Server.players.get(1);
+        // get Socket
+        Server.mapEnemy.put(player1, player2);
+        Server.mapEnemy.put(player2, player1);
 
-            player1Name = Server.playersName.get(0);
-            player2Name = Server.playersName.get(1);
-            Server.mapEnemyName.put(player1Name, player2Name);
-            Server.mapEnemyName.put(player2Name, player1Name);
+        player1Name = Server.playersName.get(0);
+        player2Name = Server.playersName.get(1);
+        Server.mapEnemyName.put(player1Name, player2Name);
+        Server.mapEnemyName.put(player2Name, player1Name);
             
-            try{
-                gameingSeed = (int)(Math.random()*10);
-                // generate gaming seed
-                System.out.println(gameingSeed);
-                DataOutputStream outputOfPlayer1 = new DataOutputStream(player1.getOutputStream());
-                DataOutputStream outputOfPlayer2 = new DataOutputStream(player2.getOutputStream());
-                outputOfPlayer1.write(gameingSeed);
-                outputOfPlayer1.flush();
-                outputOfPlayer2.write(gameingSeed);
-                outputOfPlayer2.flush();
+        try{
+            gameingSeed = (int)(Math.random()*10);
+            // generate gaming seed
+            System.out.println(gameingSeed);
+            DataOutputStream outputOfPlayer1 = new DataOutputStream(player1.getOutputStream());
+            DataOutputStream outputOfPlayer2 = new DataOutputStream(player2.getOutputStream());
+            outputOfPlayer1.write(gameingSeed);
+            outputOfPlayer1.flush();
+            outputOfPlayer2.write(gameingSeed);
+            outputOfPlayer2.flush();
 
-                //synchronized(gameIsOpen){
-                    gameIsOpen = true;
-                    //enable game of thread of slaveClient
-                //}
-            }catch (IOException e){
+            gameIsOpen = true;
+        }catch (IOException e){
             System.out.println("is it start?");
-            }
+        }
         
     }
 }
@@ -118,11 +114,9 @@ class slaveForClientConnection implements Runnable {
                 System.out.println(myName+" is in players list now");
             }
             // 接收動作
-            //synchronized (WaitingRoom.gameIsOpen){
-                while (!WaitingRoom.gameIsOpen)
-                    System.out.println("Waiting Game start!");
-                    //;
-            //}
+            while (!WaitingRoom.gameIsOpen)
+                System.out.println("Waiting Game start!");
+
             System.out.println("enermy name " + Server.mapEnemyName.get(myName));
             output.writeUTF(Server.mapEnemyName.get(myName));
             output.flush();
@@ -130,9 +124,9 @@ class slaveForClientConnection implements Runnable {
 
             outputToOpponent = new DataOutputStream(Server.mapEnemy.get(connection).getOutputStream());
             while (true) {
-                int behaviorToOpponent = input.read();
+                int behaviorToOpponent = input.readInt();
                 // receive my move of keyboard
-                outputToOpponent.write(behaviorToOpponent);
+                outputToOpponent.writeInt(behaviorToOpponent);
                 // write the behavior to opponent
                 outputToOpponent.flush();
 
@@ -141,7 +135,6 @@ class slaveForClientConnection implements Runnable {
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
